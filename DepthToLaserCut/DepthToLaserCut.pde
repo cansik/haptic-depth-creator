@@ -6,15 +6,15 @@ PImage emilImage;
 PImage depthImage;
 
 int pixelCount = 0;
-int targetPixelCount = 3;
+int targetPixelCount = 15;
 
 PShape model = null;
 
 float modelWidth = 300;
 float modelHeight = 300;
-float modelDepth = 0;
+float modelDepth = 100;
 
-float pixelSpace = 5;
+float pixelSpace = 2;
 
 boolean showHistogram = false;
 
@@ -82,13 +82,15 @@ void resizeImage(int w, int h)
 void draw3DModel()
 {
   // show debug
+  /*
   pushMatrix();
-  translate(0, 0, modelDepth / 2);
-  noFill();
-  strokeWeight(2.0f);
-  stroke(255);
-  box(modelWidth, modelHeight, modelDepth);
-  popMatrix();
+   translate(0, 0, modelDepth / 2);
+   noFill();
+   strokeWeight(2.0f);
+   stroke(255);
+   box(modelWidth, modelHeight, modelDepth);
+   popMatrix();
+   */
 
   int maxSize = max(depthImage.width, depthImage.height);
   float maxLength = max(modelWidth, modelHeight);
