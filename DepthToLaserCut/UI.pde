@@ -40,8 +40,8 @@ void setupUI()
 
   h += 25;
   cp5.addSlider("pixelSpace", 10, 150, 10, h, 100, 20)
-    .setRange(1, 10)
-    .setNumberOfTickMarks(10)
+    .setRange(0, 15)
+    .setNumberOfTickMarks(16)
     .showTickMarks(false)
     .setLabel("Pixel Space");
 

@@ -6,15 +6,15 @@ PImage emilImage;
 PImage depthImage;
 
 int pixelCount = 0;
-int targetPixelCount = 25;
+int targetPixelCount = 3;
 
 PShape model = null;
 
 float modelWidth = 300;
 float modelHeight = 300;
-float modelDepth = 100;
+float modelDepth = 0;
 
-float pixelSpace = 2;
+float pixelSpace = 5;
 
 boolean showHistogram = false;
 
@@ -32,7 +32,6 @@ void setup()
   cam = new PeasyCam(this, 400);
 
   emilImage = loadImage("emil_depth.png");
-  //resizeImage(25);
 
   setupUI();
 }
@@ -47,11 +46,7 @@ void draw()
     println("Depth Image: " + depthImage.width + ", " + depthImage.height);
   }
 
-  pushMatrix();
-  translate(modelWidth / -2, modelHeight / -2);
   draw3DModel();
-  popMatrix();
-
   showInformation();
 }
 
@@ -62,7 +57,8 @@ void showInformation()
 
   fill(255);
   textSize(14);
-  String infoText = "FPS: " + frameRate;
+  String infoText = "FPS: " + frameRate 
+    + "\nPixel: [" + (depthImage.width * depthImage.height) + "]";
 
   text(infoText, 20, height - 40);
   cam.endHUD();
@@ -85,11 +81,33 @@ void resizeImage(int w, int h)
 
 void draw3DModel()
 {
+  // show debug
+  pushMatrix();
+  translate(0, 0, modelDepth / 2);
+  noFill();
+  strokeWeight(2.0f);
+  stroke(255);
+  box(modelWidth, modelHeight, modelDepth);
+  popMatrix();
+
   int maxSize = max(depthImage.width, depthImage.height);
   float maxLength = max(modelWidth, modelHeight);
 
   // calulate pixel size
-  float pixelSize = (maxLength - (maxLength / (maxSize - 1f) * pixelSpace)) / maxSize;
+  float spacePerPixel = maxLength / maxSize;
+  float pixelSize = spacePerPixel - pixelSpace;
+  float fullPixelSize = pixelSize > 0 ? pixelSize + pixelSpace  : spacePerPixel;
+  pixelSize = pixelSize > 0 ? pixelSize : spacePerPixel;
+
+  float contentWidth = fullPixelSize * depthImage.width;
+  float contentHeight = fullPixelSize * depthImage.height;
+
+  // calculate shifts
+  float xShift = (modelWidth - contentWidth) / 2f;
+  float yShift = (modelHeight - contentHeight)/ 2f;
+
+  translate(xShift, yShift, 0);
+  float hpix = spacePerPixel / 2f;
 
   for (int x = 0; x < depthImage.width; x++)
   {
@@ -104,18 +122,16 @@ void draw3DModel()
       // map brightness for more detail
       float brightness = clampMap(b, histogramStart, histogramEnd, 0, 255);
 
-      float xpos = map(x, 0, maxSize, 0, modelWidth);
-      float ypos = map(y, 0, maxSize, 0, modelHeight);
+      float xpos = map(x, 0, maxSize, modelWidth / -2f, modelWidth / 2f);
+      float ypos = map(y, 0, maxSize, modelHeight / -2f, modelHeight / 2f);
       float zpos = map(brightness, 0, 255, 0, modelDepth);
 
       // create element
-      translate(xpos, ypos, zpos / 2);
+      translate(xpos + hpix, ypos + hpix, zpos / 2);
 
       fill(brightness);
       noStroke();
-
       box(pixelSize, pixelSize, zpos);
-
       popMatrix();
     }
   }
