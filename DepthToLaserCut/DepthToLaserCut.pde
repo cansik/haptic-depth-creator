@@ -20,7 +20,6 @@ float pixelSpace = 2;
 float pixelSize = 4;
 
 boolean showHistogram = false;
-boolean autoScalePixelSize = true;
 
 int histogramStart = 0;
 int histogramEnd = 255;
@@ -86,30 +85,16 @@ void resizeImage(int w, int h)
 void draw3DModel(PGraphics g)
 {
   // show debug
-  /*
   pushMatrix();
-   translate(0, 0, modelDepth / 2);
-   noFill();
-   strokeWeight(2.0f);
-   stroke(255);
-   box(modelWidth, modelHeight, modelDepth);
-   popMatrix();
-   */
-
-  int maxSize = max(depthImage.width, depthImage.height);
-  float maxLength = max(modelWidth, modelHeight);
+  translate(0, 0, modelDepth / 2);
+  noFill();
+  strokeWeight(2.0f);
+  stroke(255);
+  box(modelWidth, modelHeight, modelDepth);
+  popMatrix();
 
   // calulate pixel size
-  float spacePerPixel = maxLength / maxSize;
   float fullPixelSize = pixelSize + pixelSpace;
-
-  if (autoScalePixelSize)
-  {
-    pixelSize = spacePerPixel - pixelSpace;
-    fullPixelSize = pixelSize > 0 ? pixelSize + pixelSpace  : spacePerPixel;
-    pixelSize = pixelSize > 0 ? pixelSize : spacePerPixel;
-    pixelSizeSlider.setValue(pixelSize);
-  }
 
   float contentWidth = fullPixelSize * depthImage.width;
   float contentHeight = fullPixelSize * depthImage.height;
@@ -119,7 +104,7 @@ void draw3DModel(PGraphics g)
   float yShift = (modelHeight - contentHeight)/ 2f;
 
   g.translate(xShift, yShift, 0);
-  float hpix = spacePerPixel / 2f;
+  float hpix = fullPixelSize / 2f;
 
   for (int x = 0; x < depthImage.width; x++)
   {
@@ -134,8 +119,8 @@ void draw3DModel(PGraphics g)
       // map brightness for more detail
       float brightness = clampMap(b, histogramStart, histogramEnd, 0, 255);
 
-      float xpos = map(x, 0, maxSize, modelWidth / -2f, modelWidth / 2f);
-      float ypos = map(y, 0, maxSize, modelHeight / -2f, modelHeight / 2f);
+      float xpos = x * fullPixelSize - (modelWidth / 2f);
+      float ypos = y * fullPixelSize - (modelHeight / 2f);
       float zpos = map(brightness, 0, 255, 0, modelDepth);
 
       // create element
@@ -173,8 +158,8 @@ void exportPDF()
   strokeWeight(0.1);
   stroke(0);
   noFill();
-  
-  
+
+
 
   // draw baseplate
   for (int x = 0; x < depthImage.width; x++)
@@ -190,11 +175,11 @@ void exportPDF()
 
       /*
       float xpos = map(x, 0, maxSize, mm(20), modelWidth);
-      float ypos = map(y, 0, maxSize, mm(20), modelHeight);
-      float zpos = map(brightness, 0, 255, 0, modelDepth);
-
-      rect(mm(xpos), mm(ypos), mm(pixelSize), mm(pixelSize));
-      */
+       float ypos = map(y, 0, maxSize, mm(20), modelHeight);
+       float zpos = map(brightness, 0, 255, 0, modelDepth);
+       
+       rect(mm(xpos), mm(ypos), mm(pixelSize), mm(pixelSize));
+       */
     }
   }
 

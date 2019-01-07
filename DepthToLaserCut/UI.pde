@@ -54,11 +54,13 @@ void setupUI()
     .showTickMarks(false)
     .setLabel("Pixel Size");
 
+  /*
   h += 25;
-  cp5.addToggle("autoScalePixelSize")
-    .setPosition(10, h)
-    .setSize(100, 20)
-    .setCaptionLabel("Autoscale Pixel Size");
+   cp5.addToggle("autoScalePixelSize")
+   .setPosition(10, h)
+   .setSize(100, 20)
+   .setCaptionLabel("Autoscale Pixel Size");
+   */
 
   h += 50;
   cp5.addLabel("Histogram")
