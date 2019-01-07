@@ -1,4 +1,6 @@
 import peasy.PeasyCam;
+import nervoussystem.obj.*;
+import processing.pdf.*;
 
 PeasyCam cam;
 
@@ -15,8 +17,10 @@ float modelHeight = 300;
 float modelDepth = 100;
 
 float pixelSpace = 2;
+float pixelSize = 4;
 
 boolean showHistogram = false;
+boolean autoScalePixelSize = true;
 
 int histogramStart = 0;
 int histogramEnd = 255;
@@ -46,7 +50,7 @@ void draw()
     println("Depth Image: " + depthImage.width + ", " + depthImage.height);
   }
 
-  draw3DModel();
+  draw3DModel(this.g);
   showInformation();
 }
 
@@ -79,7 +83,7 @@ void resizeImage(int w, int h)
   depthImage.loadPixels();
 }
 
-void draw3DModel()
+void draw3DModel(PGraphics g)
 {
   // show debug
   /*
@@ -97,9 +101,15 @@ void draw3DModel()
 
   // calulate pixel size
   float spacePerPixel = maxLength / maxSize;
-  float pixelSize = spacePerPixel - pixelSpace;
-  float fullPixelSize = pixelSize > 0 ? pixelSize + pixelSpace  : spacePerPixel;
-  pixelSize = pixelSize > 0 ? pixelSize : spacePerPixel;
+  float fullPixelSize = pixelSize + pixelSpace;
+
+  if (autoScalePixelSize)
+  {
+    pixelSize = spacePerPixel - pixelSpace;
+    fullPixelSize = pixelSize > 0 ? pixelSize + pixelSpace  : spacePerPixel;
+    pixelSize = pixelSize > 0 ? pixelSize : spacePerPixel;
+    pixelSizeSlider.setValue(pixelSize);
+  }
 
   float contentWidth = fullPixelSize * depthImage.width;
   float contentHeight = fullPixelSize * depthImage.height;
@@ -108,14 +118,14 @@ void draw3DModel()
   float xShift = (modelWidth - contentWidth) / 2f;
   float yShift = (modelHeight - contentHeight)/ 2f;
 
-  translate(xShift, yShift, 0);
+  g.translate(xShift, yShift, 0);
   float hpix = spacePerPixel / 2f;
 
   for (int x = 0; x < depthImage.width; x++)
   {
     for (int y = 0; y < depthImage.height; y++)
     {
-      pushMatrix();
+      g.pushMatrix();
 
       // caluclate pixel properties
       color c = depthImage.get(x, y);
@@ -129,12 +139,12 @@ void draw3DModel()
       float zpos = map(brightness, 0, 255, 0, modelDepth);
 
       // create element
-      translate(xpos + hpix, ypos + hpix, zpos / 2);
+      g.translate(xpos + hpix, ypos + hpix, zpos / 2);
 
-      fill(brightness);
-      noStroke();
-      box(pixelSize, pixelSize, zpos);
-      popMatrix();
+      g.fill(brightness);
+      g.noStroke();
+      g.box(pixelSize, pixelSize, zpos);
+      g.popMatrix();
     }
   }
 }
@@ -142,6 +152,56 @@ void draw3DModel()
 float clampMap(float x, float s1, float e1, float s2, float e2)
 {
   return map(constrain(x, s1, e1), s1, e1, s2, e2);
+}
+
+void exportMesh()
+{
+  OBJExport obj = (OBJExport) createGraphics(10, 10, "nervoussystem.obj.OBJExport", "mesh.obj");
+  obj.setColor(true);
+  obj.beginDraw();
+  draw3DModel(obj);
+  obj.endDraw();
+  obj.dispose();
+}
+
+void exportPDF()
+{
+  beginRecord(PDF, "mesh.pdf");
+  //PGraphicsPDF pdf = (PGraphicsPDF) g; 
+
+  // setup drawing parameters
+  strokeWeight(0.1);
+  stroke(0);
+  noFill();
+  
+  
+
+  // draw baseplate
+  for (int x = 0; x < depthImage.width; x++)
+  {
+    for (int y = 0; y < depthImage.height; y++)
+    {
+      // caluclate pixel properties
+      color c = depthImage.get(x, y);
+      float b = brightness(c);
+
+      // map brightness for more detail
+      float brightness = clampMap(b, histogramStart, histogramEnd, 0, 255);
+
+      /*
+      float xpos = map(x, 0, maxSize, mm(20), modelWidth);
+      float ypos = map(y, 0, maxSize, mm(20), modelHeight);
+      float zpos = map(brightness, 0, 255, 0, modelDepth);
+
+      rect(mm(xpos), mm(ypos), mm(pixelSize), mm(pixelSize));
+      */
+    }
+  }
+
+  //pdf.nextPage();
+
+
+  endRecord();
 }
 
 void keyPressed()

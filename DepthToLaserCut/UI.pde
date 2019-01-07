@@ -6,6 +6,8 @@ int uiHeight;
 
 boolean isUIInitialized = false;
 
+Slider pixelSizeSlider;
+
 void setupUI()
 {
   isUIInitialized = false;
@@ -45,6 +47,19 @@ void setupUI()
     .showTickMarks(false)
     .setLabel("Pixel Space");
 
+  h += 25;
+  pixelSizeSlider = cp5.addSlider("pixelSize", 10, 150, 10, h, 100, 20)
+    .setRange(0, 15)
+    .setNumberOfTickMarks(16)
+    .showTickMarks(false)
+    .setLabel("Pixel Size");
+
+  h += 25;
+  cp5.addToggle("autoScalePixelSize")
+    .setPosition(10, h)
+    .setSize(100, 20)
+    .setCaptionLabel("Autoscale Pixel Size");
+
   h += 50;
   cp5.addLabel("Histogram")
     .setPosition(10, h);
@@ -63,9 +78,44 @@ void setupUI()
     .showTickMarks(false)
     .setLabel("End");
 
+  h += 30;
+  cp5.addButton("exportMeshPressed")
+    .setValue(100)
+    .setPosition(10, h)
+    .setSize(180, 22)
+    .setCaptionLabel("Export Mesh")
+    ;
+
+  h += 30;
+  cp5.addButton("exportPDFPressed")
+    .setValue(100)
+    .setPosition(10, h)
+    .setSize(180, 22)
+    .setCaptionLabel("Export PDF")
+    ;
+
+
   uiHeight = h + 200;
 
   isUIInitialized = true;
+}
+
+void exportMeshPressed(int value)
+{
+  if (!isUIInitialized)
+    return;
+
+  exportMesh();
+  println("mesh exported!");
+}
+
+void exportPDFPressed(int value)
+{
+  if (!isUIInitialized)
+    return;
+
+  exportPDF();
+  println("pdf exported!");
 }
 
 public String formatTime(long millis)
