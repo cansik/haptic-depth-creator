@@ -104,6 +104,12 @@ void setupUI()
     .setCaptionLabel("Export PDF")
     ;
 
+  h += 40;
+  cp5.addToggle("renderDepthLimits")
+    .setPosition(10, h)
+    .setSize(100, 20)
+    .setCaptionLabel("Render Depth Limits");
+
 
   uiHeight = h + 200;
 

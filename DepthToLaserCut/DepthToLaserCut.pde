@@ -21,6 +21,8 @@ float pixelSize = 4;
 
 boolean showHistogram = false;
 
+boolean renderDepthLimits = false;
+
 int histogramStart = 0;
 int histogramEnd = 255;
 
@@ -34,7 +36,7 @@ void setup()
 
   cam = new PeasyCam(this, 400);
 
-  emilImage = loadImage("emil_depth.png");
+  emilImage = loadImage("IMG_3568.jpg");
 
   setupUI();
 }
@@ -124,6 +126,13 @@ void draw3DModel(PGraphics g)
 
       // map brightness for more detail
       float brightness = clampMap(b, histogramStart, histogramEnd, 0, 255);
+      
+      // opt out by limits guard
+      if(!renderDepthLimits && (brightness < 1 || brightness > 254))
+      {
+        g.popMatrix();
+        continue; 
+      }
 
       float xpos = x * fullPixelSize - (modelWidth / 2f);
       float ypos = y * fullPixelSize - (modelHeight / 2f);
