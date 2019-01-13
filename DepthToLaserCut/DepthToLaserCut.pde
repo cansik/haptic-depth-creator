@@ -43,11 +43,7 @@ void draw()
 {
   background(0);
 
-  if (targetPixelCount != pixelCount)
-  {
-    resizeImage(targetPixelCount);
-    println("Depth Image: " + depthImage.width + ", " + depthImage.height);
-  }
+  checkPixelCount();
 
   draw3DModel(this.g);
   showInformation();
@@ -67,6 +63,14 @@ void showInformation()
   cam.endHUD();
 }
 
+void checkPixelCount()
+{
+  if (targetPixelCount != pixelCount)
+  {
+    resizeImage(targetPixelCount);
+    println("Depth Image: " + depthImage.width + ", " + depthImage.height);
+  }
+}
 
 void resizeImage(int w)
 {
@@ -84,14 +88,16 @@ void resizeImage(int w, int h)
 
 void draw3DModel(PGraphics g)
 {
+  /*
   // show debug
-  pushMatrix();
-  translate(0, 0, modelDepth / 2);
-  noFill();
-  strokeWeight(2.0f);
-  stroke(255);
-  box(modelWidth, modelHeight, modelDepth);
-  popMatrix();
+   pushMatrix();
+   translate(0, 0, modelDepth / 2);
+   noFill();
+   strokeWeight(2.0f);
+   stroke(255);
+   box(modelWidth, modelHeight, modelDepth);
+   popMatrix();
+   */
 
   // calulate pixel size
   float fullPixelSize = pixelSize + pixelSpace;
@@ -139,27 +145,46 @@ float clampMap(float x, float s1, float e1, float s2, float e2)
   return map(constrain(x, s1, e1), s1, e1, s2, e2);
 }
 
-void exportMesh()
+void exportMesh(String name)
 {
-  OBJExport obj = (OBJExport) createGraphics(10, 10, "nervoussystem.obj.OBJExport", "mesh.obj");
-  obj.setColor(true);
+  //X3DExport obj = (X3DExport) createGraphics(10, 10, "nervoussystem.obj.X3DExport", "colored.x3d");
+  OBJExport obj = (OBJExport) createGraphics(10, 10, "nervoussystem.obj.OBJExport", name + ".obj");
+  obj.setColor(false);
   obj.beginDraw();
   draw3DModel(obj);
   obj.endDraw();
   obj.dispose();
 }
 
+
+void exportMesh(String name, int pixelCount, float modelDepth, float pixelSpace, float pixelSize)
+{
+  this.targetPixelCount = pixelCount;
+  this.modelDepth = modelDepth;
+  this.pixelSpace = pixelSpace;
+  this.pixelSize = pixelSize;
+
+  String fullName = name + "-pc" + pixelCount + "-md" + modelDepth + "-ps" + pixelSpace + "-pz" + pixelSize;
+
+  checkPixelCount();
+  exportMesh(fullName);
+}
+
 void exportPDF()
 {
-  beginRecord(PDF, "mesh.pdf");
-  //PGraphicsPDF pdf = (PGraphicsPDF) g; 
+  PGraphicsPDF pdf = (PGraphicsPDF)beginRecord(PDF, "mesh.pdf");
+  pdf.setSize(round(mm(900)), round(mm(600)));
+  pdf.beginDraw();
 
   // setup drawing parameters
   strokeWeight(0.1);
   stroke(0);
   noFill();
 
-
+  // calulate pixel size
+  float fullPixelSize = pixelSize + pixelSpace;
+  float paddingX = 10;
+  float paddingY = 10;
 
   // draw baseplate
   for (int x = 0; x < depthImage.width; x++)
@@ -173,17 +198,15 @@ void exportPDF()
       // map brightness for more detail
       float brightness = clampMap(b, histogramStart, histogramEnd, 0, 255);
 
-      /*
-      float xpos = map(x, 0, maxSize, mm(20), modelWidth);
-       float ypos = map(y, 0, maxSize, mm(20), modelHeight);
-       float zpos = map(brightness, 0, 255, 0, modelDepth);
-       
-       rect(mm(xpos), mm(ypos), mm(pixelSize), mm(pixelSize));
-       */
+      float xpos = paddingX + x *  fullPixelSize;
+      float ypos = paddingY + y * fullPixelSize;
+      float zpos = map(brightness, 0, 255, 0, modelDepth);
+
+      rect(mm(xpos), mm(ypos), mm(pixelSize), mm(pixelSize));
     }
   }
 
-  //pdf.nextPage();
+  pdf.nextPage();
 
 
   endRecord();
