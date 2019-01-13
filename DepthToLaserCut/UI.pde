@@ -88,7 +88,7 @@ void setupUI()
     .setCaptionLabel("Export Mesh")
     ;
 
-  h += 30;
+  h += 25;
   cp5.addButton("exportAllMeshPressed")
     .setValue(100)
     .setPosition(10, h)
@@ -96,7 +96,7 @@ void setupUI()
     .setCaptionLabel("Export All")
     ;
 
-  h += 30;
+  h += 25;
   cp5.addButton("exportPDFPressed")
     .setValue(100)
     .setPosition(10, h)
@@ -124,8 +124,12 @@ void exportAllMeshPressed(int value)
   if (!isUIInitialized)
     return;
 
-  exportMesh("emil", 5, 50, 0, 4);
-  exportMesh("emil", 15, 50, 0, 4);
+  exportMesh("emil", 5, 25, 0, 4);
+  exportMesh("emil", 15, 25, 0, 4);
+  exportMesh("emil", 45, 25, 0, 4);
+  exportMesh("emil", 80, 25, 0, 4);
+  exportMesh("emil", 100, 25, 0, 4);
+
   println("mesh exported!");
 }
 
