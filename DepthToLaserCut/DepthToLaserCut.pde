@@ -4,6 +4,8 @@ import processing.pdf.*;
 
 PeasyCam cam;
 
+String pictureName = "emil_depth.png";
+
 PImage emilImage;
 PImage depthImage;
 
@@ -36,7 +38,7 @@ void setup()
 
   cam = new PeasyCam(this, 400);
 
-  emilImage = loadImage("IMG_3568.jpg");
+  emilImage = loadImage(pictureName);
 
   setupUI();
 }
